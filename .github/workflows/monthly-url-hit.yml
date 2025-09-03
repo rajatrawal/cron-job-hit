@@ -1,0 +1,43 @@
+name: Hit URL monthly at 2:30 AM IST
+
+on:
+  # Run every day at 21:00 UTC (which is 02:30 IST next calendar day)
+  schedule:
+    - cron: "0 21 * * *"
+  # Optional: allow manual trigger to test
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monthly-url-hit
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Compute current date/time in IST
+        id: ist
+        run: |
+          echo "day=$(TZ=Asia/Kolkata date +'%d')" >> $GITHUB_OUTPUT
+          echo "now_ist=$(TZ=Asia/Kolkata date -Iseconds)" >> $GITHUB_OUTPUT
+          echo "now_utc=$(date -Iseconds -u)" >> $GITHUB_OUTPUT
+          echo "IST date/time: $(TZ=Asia/Kolkata date -Iseconds)"
+          echo "UTC date/time: $(date -Iseconds -u)"
+
+      - name: Skip if today (IST) is not the 1st
+        if: ${{ steps.ist.outputs.day != '01' }}
+        run: |
+          echo "Not the 1st in IST (today is day ${{ steps.ist.outputs.day }}). Skipping."
+          exit 0
+
+      - name: Hit the URL
+        run: |
+          echo "Triggering at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
+          curl -fsS --max-time 60 --retry 3 --retry-delay 5 \
+            -H "User-Agent: gh-actions-cron" \
+            "https://societycars-a3eba0e0agh3d6b6.centralindia-01.azurewebsites.net/api/create-next-month-calendar/"
