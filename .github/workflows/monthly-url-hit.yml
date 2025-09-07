@@ -3,7 +3,7 @@ name: Hit URL monthly at 2:30 AM IST
 on:
   # Run every day at 21:00 UTC (which is 02:30 IST next calendar day)
   schedule:
-    - cron: "0 21 * * *"
+    - cron: "0 21 1 * *"
   # Optional: allow manual trigger to test
   workflow_dispatch:
 
