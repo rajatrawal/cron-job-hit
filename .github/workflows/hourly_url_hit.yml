@@ -1,0 +1,36 @@
+name: Hit URL hourly
+
+on:
+  # Run every hour at minute 0
+  schedule:
+    - cron: "0 * * * *"
+  # Optional: allow manual trigger to test
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hourly-url-hit
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Compute current date/time in IST
+        id: ist
+        run: |
+          echo "now_ist=$(TZ=Asia/Kolkata date -Iseconds)" >> $GITHUB_OUTPUT
+          echo "now_utc=$(date -Iseconds -u)" >> $GITHUB_OUTPUT
+          echo "IST date/time: $(TZ=Asia/Kolkata date -Iseconds)"
+          echo "UTC date/time: $(date -Iseconds -u)"
+
+      - name: Hit the URL
+        run: |
+          echo "Triggering at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
+          curl -fsS --max-time 60 --retry 3 --retry-delay 5 \
+            -H "User-Agent: gh-actions-cron" \
+            "https://societycars-a3eba0e0agh3d6b6.centralindia-01.azurewebsites.net/api/create-next-month-calendar/"
