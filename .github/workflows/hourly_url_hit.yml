@@ -28,9 +28,16 @@ jobs:
           echo "IST date/time: $(TZ=Asia/Kolkata date -Iseconds)"
           echo "UTC date/time: $(date -Iseconds -u)"
 
-      - name: Hit the URL
+      - name: Hit calendar creation URL
         run: |
-          echo "Triggering at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
+          echo "Triggering Calendar API at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
           curl -fsS --max-time 60 --retry 3 --retry-delay 5 \
             -H "User-Agent: gh-actions-cron" \
             "https://societycars-a3eba0e0agh3d6b6.centralindia-01.azurewebsites.net/api/create-next-month-calendar/"
+
+      - name: Hit subscription auto-pause/resume/cancel URL
+        run: |
+          echo "Triggering Subscription API at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
+          curl -fsS --max-time 60 --retry 3 --retry-delay 5 \
+            -H "User-Agent: gh-actions-cron" \
+            "https://societycars-a3eba0e0agh3d6b6.centralindia-01.azurewebsites.net/auto-pause-resume-cancle-subscription/"
