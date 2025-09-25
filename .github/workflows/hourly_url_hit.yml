@@ -38,6 +38,8 @@ jobs:
       - name: Hit subscription auto-pause/resume/cancel URL
         run: |
           echo "Triggering Subscription API at IST ${{ steps.ist.outputs.now_ist }} (UTC ${{ steps.ist.outputs.now_utc }})"
-          curl -fsS --max-time 60 --retry 3 --retry-delay 5 \
+          curl -X POST -fsS --max-time 60 --retry 3 --retry-delay 5 \
             -H "User-Agent: gh-actions-cron" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
             "https://societycars-a3eba0e0agh3d6b6.centralindia-01.azurewebsites.net/auto-pause-resume-cancle-subscription/"
